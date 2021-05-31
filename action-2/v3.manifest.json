@@ -1,0 +1,24 @@
+{
+  "name": "The Color Ship",
+  "description": "A UFO Themed Color Picker",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_icon": {
+      "16": "public/images/icons8-note-16.png",
+      "24": "public/images/icons8-note-24.png",
+      "32": "public/images/icons8-note-32.png"
+    },
+    "default_popup": "action/popup.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["content/content.js"],
+      "matches": ["https://www.youtube.com/*"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

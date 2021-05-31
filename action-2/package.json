@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "trimbox",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "gulp build",
+    "buildOnce": "gulp buildOnce"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "del": "^6.0.0",
+    "fs-extra": "^9.1.0",
+    "glob": "^7.1.6",
+    "gulp": "^4.0.2",
+    "gulp-file": "^0.4.0",
+    "gulplog": "^1.0.0",
+    "tinyify": "^3.0.0",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^4.0.0"
+  },
+  "dependencies": {
+    "baconjs": "^3.0.17",
+    "notyf": "^3.9.0",
+    "simplemde": "^1.11.2",
+    "webextension-polyfill": "^0.8.0"
+  }
+}
