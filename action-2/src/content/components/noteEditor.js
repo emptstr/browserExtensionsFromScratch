@@ -10,16 +10,20 @@ class NoteEditorComponent {
 
     render() {
         const relatedVideosSidebar = document.getElementById('related')
-        const noteWidget = document.createElement('div')
+        let noteWidget = document.createElement('noteWidget')
         relatedVideosSidebar.insertBefore(noteWidget, relatedVideosSidebar.childNodes[0])
+
         noteWidget.innerHTML = `
         <div id="noteEditor">
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
           <textarea id='noteEditorTextArea' cols="30" rows="10"></textarea>
         </div>`
+
+        const markdownEditor = MarkdownEditorFactory.getInstance()
+
         const contentChangeListener = new ContentChangeListener({
-            markdownEditor: MarkdownEditorFactory.getInstance(),
+            markdownEditor
         })
         contentChangeListener.listen()
     }
