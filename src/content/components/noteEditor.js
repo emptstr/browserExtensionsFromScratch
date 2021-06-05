@@ -1,6 +1,7 @@
 const Bacon = require('baconjs')
 const SimpleMDE = require('simplemde')
-const { Notyf } = require('notyf')
+const {Notyf} = require('notyf')
+const browser = require('webextension-polyfill')
 
 class NoteEditorComponent {
 
@@ -8,7 +9,7 @@ class NoteEditorComponent {
         this.mde = null
     }
 
-    render() {
+    async render() {
         const relatedVideosSidebar = document.getElementById('related')
         let noteWidget = document.createElement('noteWidget')
         relatedVideosSidebar.insertBefore(noteWidget, relatedVideosSidebar.childNodes[0])
@@ -20,7 +21,7 @@ class NoteEditorComponent {
           <textarea id='noteEditorTextArea' cols="30" rows="10"></textarea>
         </div>`
 
-        const markdownEditor = MarkdownEditorFactory.getInstance()
+        const markdownEditor = await MarkdownEditorFactory.getInstance()
 
         const contentChangeListener = new ContentChangeListener({
             markdownEditor
@@ -29,31 +30,56 @@ class NoteEditorComponent {
     }
 }
 
+class CurrentVideo {
+
+    static id() {
+        return /v=(.*)/.exec(window.location.href)[1]
+    }
+}
+
 class MarkdownEditorFactory {
 
-    static getInstance() {
+    static async getInstance() {
         const markdownEditor = new SimpleMDE({
             element: document.getElementById('noteEditorTextArea'),
             autofocus: true
         })
-        markdownEditor.value(window.note || 'Start typing something...')
+
+        const result = await browser.runtime.sendMessage({
+            name: 'getNote',
+            payload: CurrentVideo.id()
+        })
+
+        markdownEditor.value(result.response || 'Start typing something...')
         return markdownEditor
     }
 }
 
 class ContentChangeListener {
 
-    constructor({ markdownEditor }) {
+    constructor({markdownEditor}) {
         this.markdownEditor = markdownEditor
     }
 
     listen() {
         const stream = Bacon.fromEvent(this.markdownEditor.codemirror, 'change').debounce(3000)
-        stream.onValue(() => {
-            console.log('Content changed')
-            window.note = this.markdownEditor.value()
-            const notfy = new Notyf({duration: 5000, dismissible: true, position: { x: "center", y: "top"}})
-            notfy.success('All changes saved')
+        stream.onValue(async () => {
+            const note = this.markdownEditor.value()
+
+            const result = await browser.runtime.sendMessage({
+                name: 'saveNote',
+                payload: {id: CurrentVideo.id(), note: note}
+            })
+
+            const notfy = new Notyf({duration: 5000, dismissible: true, position: {x: "center", y: "top"}})
+
+            console.log(result)
+
+            if (result.status === 'success') {
+                notfy.success('All changes saved')
+            } else {
+                notfy.error(result.message || 'Failed to save note')
+            }
         })
     }
 }
